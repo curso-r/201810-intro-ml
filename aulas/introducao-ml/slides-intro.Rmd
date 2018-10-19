@@ -1,0 +1,236 @@
+---
+title: "Introdução ao Machine Learning"
+author: "@Curso-R"
+date: "22-10-2018"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["default", "default-fonts", "custom.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      beforeInit: js/macro.js
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+## Curso-R
+
+<br>
+
+<img src="img/timeline.png" style=" display: block; margin-left: auto; margin-right: auto;"></img>
+
+---
+
+## Professores
+
+<img src="img/professores.png" style=" display: block; margin-left: auto; margin-right: auto; width: 110%"></img>
+
+---
+
+# Programa do curso
+
+- 22/10 (seg) - **Introdução ao Machine Learning, Estratégias e ambientação ao R e RStudio**
+
+- 24/10 (qua) - **Estratégias gerais: separação da base de dados, reamostragem, tuning de modelos, métricas de performance**
+
+- 29/10 (seg) - **Regressão linear, regularização**
+
+- 31/10 (qua) - **Regressão logística, regressão vs classificação**
+
+- 05/11 (seg) - **Modelos de árvores**
+
+- 07/11 (qua) - **Bagging, Boosting e cases**
+
+- 08/11 (qui) - **Cases**
+
+---
+
+## Dinâmica das aulas
+
+* Aulas expositivas com exercícios ao decorrer e ao final das aulas.
+
+* Parada para café às 20h20.
+
+---
+
+# Ciência de dados
+
+<img src="img/ciclo-ciencia-de-dados.png" style = "display: block; margin-left: auto; margin-right: auto;">
+
+---
+
+## Material
+
+* Temos um material em português disponível nesta página:
+
+<center><a href = 'http://material.curso-r.com/'>http://material.curso-r.com/ </a></center>
+
+<img src="img/material.png" style=" display: block; margin-left: auto; margin-right: auto; width: 70%"></img>
+
+---
+
+class: middle, center, inverse
+
+# Introdução
+
+---
+
+# O que é Machine Learning?
+
+<br>
+
+--
+
+- Não é um termo novo: criado por Arthur Samuel, em 1959
+
+<img src="img/arthur-sam.png" class="center2" width=100>
+
+--
+
+- Existe um grande hype atualmente em cima desse termo (~50 artigos por dia no Arxiv!!!)
+
+--
+
+<img src="img/marvin.png" class="cantodireito" width=100>
+
+--
+
+- Machine Learning é um nome marketeiro para modelagem preditiva
+
+--
+
+- Modelagem preditiva é um framework de análise de dados que visa gerar a estimativa mais precisa possível para uma quantidade ou fenômeno (Max Kuhn, 2014).
+
+
+---
+
+# Por que o hype?
+
+- Poderio computacional
+
+- Disponibilidade de dados
+
+- Sucesso em resolver problemas historicamente difíceis
+
+---
+
+## Exemplos
+
+<img src="https://user-images.githubusercontent.com/4706822/45316589-db1b4580-b50d-11e8-8e53-33950d5c4c07.jpg" style="position: fixed; width: 40%; top: 250px; left: 300px;">
+
+--
+
+<img src="http://pennachio.wpengine.com/wp-content/uploads/2017/02/diabetic-retinopathy_comparison-1024x469.jpg" style="position: fixed; width: 40%; top: 100px; left: 100px;">
+
+--
+
+<img src="https://www.extremetech.com/wp-content/uploads/2014/09/self-driving-head-640x353.jpg" style="position: fixed;  width: 40%; top: 100px; left: 500px;">
+
+--
+
+<img src="http://multimidia.correiodopovo.com.br/thumb.aspx?Caminho=multimidia/2017/10/07/434592.JPG&Tamanho=690" style="position: fixed; width: 40%; top: 400px; left: 100px;">
+
+--
+
+<img src="https://i2.wp.com/www.yaabot.com/wp-content/uploads/2016/11/yaabot_algo2.jpg?resize=759%2C500&ssl=1" style="position: fixed; width: 40%; top: 200px; left: 500px;">
+
+--
+
+<img src="https://5.imimg.com/data5/NT/NK/MY-38742550/life-insurance-health-insurance-and-general-insurance-250x250.png" style="position: fixed; width: 20%; top: 200px; left: 100px;">
+
+--
+
+<img src="https://i.ytimg.com/vi/DmPLEURo-Vk/maxresdefault.jpg" style="position: fixed; width: 40%; top: 200px; left: 300px;">
+
+---
+
+class: middle, center, inverse
+
+# Relação com a Estatística
+
+---
+
+# Machine Learning e Estatística
+
+<img src = "img/box.png" class = "center2">
+
+--
+
+1) Gostaríamos de saber como $x$ e $y$ estão relacionadas.
+
+--
+
+2) Gostaríamos de prever $y$ a partir de $x$.
+
+--
+
+<br>
+
+Matematicamente, queremos encontrar uma função $f()$ tal que:
+
+$$
+y \approx f(x)
+$$
+
+---
+
+# Machine Learning e Estatística
+
+ <img src="img/box-data-models.png" class = "center2"> 
+ 
+--
+
+<br>
+<br>
+ 
+<img src="img/box-algorithmic-models.png" class = "center2"> 
+
+---
+
+class: middle, center, inverse
+
+# Habilidades
+
+---
+
+# Pensamento crítico
+
+<br>
+<br>
+<br>
+
+- Entender o problema
+
+- Manter foco no objetivo
+
+- Definir a métrica
+
+<img src="https://media.giphy.com/media/sqefuSs2oD8sg/giphy.gif" class="smart_cat">
+
+---
+
+# Entender o problema
+
+<img src="img/aviao.png" class="center2">
+
+---
+
+# Entender o objetivo
+
+<img src="img/ozonio.jpeg" class="ozonio">
+
+<img src="img/carros.jpg" class="carros">
+
+---
+
+# Definir a métrica
+
+<img src="img/google.png" class="google">
+
+---
+
+<img src="https://wordstream-files-prod.s3.amazonaws.com/s3fs-public/styles/simple_image/public/images/machine-learning1.png?Q_SmWhhhAEOO_32HNjPhcxsPhreWV26o&itok=yjEJbEKD" style="display: block; margin-left: auto; margin-right: auto;"></img>

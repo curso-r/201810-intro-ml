@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Machine Learning com R</title>
+    <meta charset="utf-8">
+    <meta name="author" content="@Curso-R" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="custom.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Machine Learning com R
+## Estratégias
+### <span class="citation">@Curso-R</span>
+### 23-05-2018
+
+---
+
+
+
+
+# Funções de perda
+
+Queremos encontrar funções `\(f\)` tais que
+
+`$$Y \approx f(X)$$`
+
+--
+
+Para isso, definimos uma função de perda `\(L(y, f)\)` e encontramos a função `\(\hat{f}\)` que minimiza essa função.
+
+--
+
+- Mínimos quadrados
+
+`$$\sum_{i=1}^n \left(y_i - f(x_i)\right)^2 = \sum_{i=1}^n \left(y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij}\right)^2$$`
+
+--
+
+- Verossimilhança
+
+`$$- f(y_1, \dots, y_n) \stackrel{\text{iid}}{=} - \prod_{i=1}^{n}f(y_i)$$`
+
+--
+
+Por que apenas a minimização da função de perda não garante que a `\(\hat{f}\)` obtida seja uma boa escolha?
+
+---
+
+# Regularização
+
+- Regularização se refere à técnica de incluir penalizações na função de perda que encolhem as estimativas na direção do zero.
+
+--
+
+- Essa técnica pode levar a uma redução substancial da variância das predições ao custo de um pequeno aumento de viés.
+
+--
+
+Vamos falar de:
+
+- Regressão Ridge
+
+- LASSO
+
+---
+
+# Regressão Ridge
+
+Regularização considerando estimação por mínimos quadrados.
+
+`$$L(y, f) = \sum_{i=1}^n \left(y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij}\right)^2 + \lambda \sum_{j=1}^p \beta_j^2$$`
+
+--
+
+- O hiperparâmetro `\(\lambda\)` controla o impacto da penalização nas estimativas dos parâmetros.
+
+--
+
+- O que acontece quando `\(\lambda \longrightarrow 0\)`?
+
+--
+
+- O que acontece quando `\(\lambda \longrightarrow \infty\)`?
+
+--
+
+- As estimativas obtidas minimizando essa expressão não serão invariantes à escala.
+
+--
+
+- `\(\beta_i = 0\)` apenas se `\(\lambda = \infty\)`.
+
+--
+
+- Vamos ter um conjunto de estimativas diferentes para cada valor de `\(\lambda\)`.
+
+---
+
+# LASSO
+
+(least absolute shrinkage and selection operator)
+
+
+`$$\sum_{i=1}^n \left(y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij}\right)^2 + \lambda \sum_{j=1}^p |\beta_j|$$`
+
+--
+
+- Para `\(\lambda\)` suficientemente grande, alguns parâmetros serão estimados exatamente como 0.
+
+--
+
+- O que acontece quando `\(\lambda \longrightarrow 0\)`? E quando `\(\lambda \longrightarrow \infty\)`?
+
+---
+
+# Outra formulação
+
+`$$\underset{\beta}{\text{minimizar}}\left\{\sum_{i=1}^n \left(y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij}\right)^2\right\} \text{ sujeito à } \sum_{j=1}^p \beta_j^2 \leq s \text{ ou } \sum_{j=1}^p |\beta_j| \leq s$$`
+--
+
+&lt;img src="img/lasso_ridge.png" width="928" style="display: block; margin: auto;" /&gt;
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="js/macro.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

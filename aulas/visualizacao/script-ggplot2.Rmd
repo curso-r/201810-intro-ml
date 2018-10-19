@@ -1,0 +1,553 @@
+---
+title: "Visualização"
+author: "William"
+date: "25 de junho de 2018"
+output: 
+  html_document:
+    self_contained: no
+---
+
+
+## Introdução
+
+
+```{r, echo=FALSE}
+knitr::include_graphics('img/ggplot2.png')
+```
+
+- Tese de doutorado do Hadley Wickham.
+
+- Gramática dos gráficos (Leland Wilkinson) -> o que é um gráfico estatístico?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- Um gráfico estatístico é uma forma de representar visualmente os dados usando atributos estéticos (posição, cor, forma, tamanho, ...) de formas geométricas (pontos, linhas, barras, ...).
+
+
+
+
+
+
+## Por que utilizar o ggplot?
+
+
+```{r, echo=FALSE, fig.cap='Gráficos no R base.'}
+knitr::include_graphics('img/Etch.jpg')
+```
+
+
+```{r, echo=FALSE, fig.cap='Gráficos com ggplot2.'}
+knitr::include_graphics('img/mrpotatohead.jpg')
+```
+
+
+- A construção é intuitiva e organizada.
+- A estrutura é a mesma para todo tipo de gráfico.
+- Os gráficos são naturalmente mais bonitos.
+
+
+## Visualização (banco de dados IMDB)
+
+Kaggle: site de desafio de análises de dados
+
+[Link do desafio do IMDB](https://www.kaggle.com/deepmatrix/imdb-5000-movie-dataset)
+
+[Guess the correlation](http://curso-r.com/blog/2018/03/29/2018-03-29-guess-the-correlation/)
+
+# Pacotes
+
+```{r}
+library(tidyverse)
+```
+
+# Ler dados
+
+```{r}
+dados <- read_rds("data/dados_imdb.rds")
+dados
+```
+
+# Gráfico de dispersão: arrecadação vs orçamento
+
+```{r}
+ggplot(dados) +
+  geom_point(mapping = aes(x = budget, y = gross))
+```
+
+## Verificando valor estranho
+
+```{r}
+dados %>% 
+  filter(budget > 5e+08) %>% 
+  select(movie_title, title_year, country)
+```
+
+## Filtrando apenas para filmes norte-americanos
+
+```{r}
+dados %>% 
+  filter(country == "USA") %>%
+  ggplot +
+  geom_point(aes(x = budget, y = gross))
+
+dados_US <- filter(dados, country == "USA")
+
+```
+
+## Mapeando a cor
+
+```{r}
+dados_US %>%
+  mutate(
+    periodo = ifelse(title_year < 2000, "periodo_1", "periodo_2")
+  ) %>% 
+  ggplot +
+  geom_point(aes(x = budget, y = gross, color = periodo))
+```
+
+
+# Exercício
+
+O que acontece se mapearmos a variável "title_year" sem categorizá-la?
+
+```{r}
+dados_US %>%
+  ggplot +
+  geom_point(aes(x = budget, y = gross, color = title_year)) +
+  scale_color_continuous(breaks = c(2001, 1941, 1921))
+```
+
+
+## Acrescentando a reta y = x
+
+Vamos visualizar a quantidade de filmes que não se pagaram.
+
+```{r}
+dados_US %>%
+  mutate(
+    periodo = ifelse(title_year < 2000, "periodo_1", "periodo_2")
+  ) %>% 
+  ggplot +
+  geom_abline(intercept = 0, slope = 1) +
+  geom_point(mapping = aes(x = budget, y = gross, color = periodo))
+  
+```
+
+# Labels
+
+```{r}
+dados_US %>%
+  mutate(
+    periodo = ifelse(title_year < 2000, "periodo_1", "periodo_2")
+  ) %>% 
+  ggplot +
+  geom_point(aes(x = budget, y = gross, color = periodo)) +
+  geom_abline(intercept = 0, slope = 1) +
+  labs(x = "Orçamento", y = "Arrecadação", color = "Período") +
+  ggtitle("Arrecadação vs Orçamento")
+```
+
+# Escalas
+
+```{r}
+dados_US %>%
+  mutate(
+    periodo = ifelse(title_year < 2000, "periodo_1", "periodo_2")
+  ) %>% 
+  ggplot +
+  geom_point(aes(x = budget, y = gross, color = periodo)) +
+  geom_abline(intercept = 0, slope = 1) +
+  labs(x = "Orçamento", y = "Arrecadação", color = "Período") +
+  scale_color_discrete(
+    labels = c("Antes de 2000", "Depois de 2000", "Sem informação")
+  )
+
+```
+
+# Exercício
+
+1. Crie um gráfico de dispersão da nota do imdb (imdb_score) pelo orçamento (budget).
+
+```{r}
+dados_US %>% 
+  ggplot() +
+  geom_point(aes(x = budget, y = imdb_score))
+```
+
+
+2. Refaça um gráfico apenas para os filmes com classificação (content_rating) PG e outro para PG-13.
+
+```{r}
+dados_US %>%
+  filter(content_rating == "PG") %>% 
+  ggplot() +
+  geom_point(aes(x = budget, y = imdb_score))
+
+dados_US %>%
+  filter(content_rating == "PG-13") %>% 
+  ggplot() +
+  geom_point(aes(x = budget, y = imdb_score))
+```
+
+# Facets
+
+```{r}
+dados_US %>%
+  filter(content_rating %in% c("PG", "PG-13")) %>%
+  mutate(
+    periodo = ifelse(title_year < 2000, "periodo_1", "periodo_2")
+  ) %>%
+  ggplot +
+  geom_point(aes(x = budget, y = imdb_score)) +
+  facet_wrap(~content_rating)
+```
+
+
+
+# Gráfico de barras
+
+```{r}
+dados_US %>%
+  ggplot() +
+  geom_bar(aes(x = director_name))
+```
+
+Pegando apenas os 10 diretores com mais filmes.
+
+```{r}
+dados_US %>% 
+  count(director_name) %>% 
+  arrange(desc(n)) %>% 
+  filter(!is.na(director_name)) %>% 
+  top_n(10, n) %>%
+  ggplot() +
+  geom_bar(aes(x = director_name, y = n), stat = "identity")
+```
+
+# Labels, parte II
+
+```{r}
+dados_US %>% 
+  count(director_name) %>% 
+  arrange(desc(n)) %>% 
+  filter(!is.na(director_name)) %>% 
+  top_n(10, n) %>% 
+  ggplot() +
+  geom_bar(aes(x = director_name, y = n), stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+```
+
+
+# Fatores
+
+- `forcats`: `for` (para) + `cats` (categóricas).
+- utilidade: reordenar e renomear fatores de diversas formas.
+- é especialmente útil para visualização.
+- `fct_reorder`/ `fct_infreq`, `fct_collapse`, `fct_lump`.
+- são usados dentro de mutate()
+
+```{r}
+library(forcats)
+
+dados_US %>% 
+  count(director_name) %>% 
+  arrange(desc(n)) %>% 
+  filter(!is.na(director_name)) %>% 
+  top_n(10, n) %>% 
+  mutate(
+    director_name = as.factor(director_name),
+    director_name = fct_reorder(director_name, n)
+  ) %>% 
+  ggplot() +
+  geom_bar(aes(x = director_name, y = n), stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+```
+
+# Boxplots
+
+```{r}
+dados %>% 
+  filter(!is.na(director_name)) %>%
+  group_by(director_name) %>% 
+  filter(n() >= 15) %>% 
+  ggplot +
+  geom_boxplot(aes(x = director_name, y = gross))
+```
+
+```{r}
+dados %>% 
+  filter(!is.na(director_name)) %>%
+  group_by(director_name) %>% 
+  filter(n() >= 15) %>%
+  ungroup() %>% 
+  mutate(
+    director_name = as.factor(director_name),
+    director_name = fct_reorder(director_name, gross, .fun = mean, na.rm = TRUE)
+  ) %>% 
+  ggplot +
+  geom_boxplot(aes(x = director_name, y = gross)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+```
+
+# Colapsando fatores
+
+```{r}
+dados %>%
+  filter(!is.na(country)) %>% 
+  mutate(country = fct_lump(country, n = 5, other_level = 'Outros')) %>% 
+  ggplot() +
+  geom_bar(mapping = aes(x = country))
+```
+
+
+
+# Exercício
+
+1. Escolha o seu diretor favorito e faça um histograma das suas notas no IMDB (imdb_score).
+
+Dica: usa a função `geom_histogram()`.
+
+2. Reclame que ficou feio.
+
+3. Arrume as classes com o argumento `binwidth =`.
+
+4. Troque a cor das barras.
+
+Dica: entenda a diferença entre os aesthetics `fill=` e `color=`.
+
+5. Arrume os labels.
+
+6. Escolha mais um diretor e compare as distribuições de suas notas no IMDB usando a função `facet_wrap()`.
+
+```{r}
+dados_US %>% 
+  filter(str_detect(director_name, "Scorsese") |
+         str_detect(director_name, "Spielberg")) %>% 
+  ggplot() +
+  geom_histogram(aes(x = imdb_score), binwidth = 0.35, color = "black", fill = "white") +
+  labs(x = "Nota", y = "Frequência") +
+  facet_wrap(~director_name)
+```
+
+# Gráficos de linha
+
+```{r}
+dados %>% 
+  filter(director_name == "Steven Spielberg") %>% 
+  ggplot() +
+  geom_point(aes(x = title_year, y = imdb_score))
+```
+
+```{r}
+dados %>% 
+  filter(director_name == "Steven Spielberg") %>% 
+  ggplot() +
+  geom_point(aes(x = title_year, y = imdb_score)) +
+  geom_line(aes(x = title_year, y = imdb_score))
+```
+
+```{r}
+dados %>% 
+  filter(director_name == "Steven Spielberg") %>% 
+  ggplot(aes(x = title_year, y = imdb_score)) +
+  geom_point() +
+  geom_line()
+```
+
+
+
+## Exercícios
+
+1. Faça um gráfico de barras do número de filmes de cada ator. Considere somente aqueles que fizeram mais filme e, por enquanto, apenas a o `actor_1_name`.
+
+```{r}
+dados_US %>% 
+  count(actor_1_name) %>% 
+  top_n(10, n) %>% 
+  ggplot() +
+  geom_bar(aes(x = actor_1_name, y = n), stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+```
+
+
+2. Repita o gráfico acima considerando agora as variáveis `actor_name_1`, `actor_name_2` e `actor_name_3`.
+
+```{r}
+dados_US %>%
+  gather(
+    key = "posicao", value = "ator", actor_1_name:actor_3_name
+  ) %>% 
+  count(ator) %>% 
+  top_n(10, n) %>% 
+  ggplot() +
+  geom_bar(aes(x = ator, y = n), stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+```
+
+
+3. Mapeie a cor das barras ao nome do ator.
+
+
+
+```{r}
+dados_US %>%
+  gather(
+    key = "posicao", value = "ator", actor_1_name:actor_3_name
+  ) %>% 
+  count(ator) %>% 
+  top_n(10, n) %>% 
+  ggplot() +
+  geom_bar(aes(x = ator, y = n, fill = ator), stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+```
+
+
+# Removendo elementos
+
+```{r}
+dados %>%
+  gather(posicao, ator, actor_1_name:actor_3_name) %>% 
+  count(ator) %>% 
+  top_n(10, n) %>% 
+  ggplot() +
+  geom_bar(aes(x = ator, y = n, fill = ator), stat = "identity") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+```
+
+# Temas
+
+```{r}
+dados %>%
+  gather(posicao, ator, actor_1_name:actor_3_name) %>% 
+  count(ator) %>% 
+  top_n(10, n) %>% 
+  ggplot() +
+  geom_bar(aes(x = ator, y = n, fill = ator), stat = "identity") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) 
+```
+
+
+## Exercícios
+
+1. Faça um gráfico para visualizar as 10 maiores bilheterias de 2016.
+
+```{r}
+dados_US %>% 
+  filter(title_year == 2016) %>% 
+  top_n(10, gross) %>% 
+  ggplot() +
+  geom_bar(
+    aes(x = movie_title, y = gross), 
+    stat = "identity"
+  ) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+
+dados_US %>% 
+  filter(title_year == 2016) %>% 
+  top_n(10, gross) %>% 
+  ggplot() +
+  geom_bar(
+    aes(x = movie_title, y = gross, fill = movie_title), 
+    stat = "identity"
+  ) +
+  theme(
+    axis.text.x = element_blank(), 
+    axis.ticks.x = element_blank(),
+    legend.position = "bottom"
+  )
+```
+
+
+2. Quantos filmes "são feitos por ano"? Trabalhe com os `fct_` para reordenar ou agrupar valores.
+
+```{r}
+p <- dados %>% 
+  group_by(title_year) %>% 
+  count() %>% 
+  ggplot(aes(x = title_year, y = n)) +
+  geom_line()
+
+ggplotly(p)
+```
+
+
+3. Faça um gráfico de barras para a arrecadação dos filmes em que o seu ator preferido/preterido aparece como ator (actor_1_name, actor_2_name ou actor_3_name).
+
+```{r}
+dados_US %>% 
+  gather(posicao, ator, actor_1_name:actor_3_name) %>% 
+  filter(ator == "Andrew Garfield") %>% 
+  ggplot(aes(x = movie_title, y = gross)) +
+  geom_bar(stat = "identity") +
+  ggtitle("Eu odeio o Andrew Garfield") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+4. (Difícil) Visualize a distribuição da arrecadação por gênero.
+
+Dicas: ver funções
+
+- tidyr::separate(), que separa variáveis concatenadas em uma coluna.
+- stringr::str_detect(), que detecta um padrão dentro de uma string.
+
+```{r}
+dados_US %>% 
+  separate(
+    genres, 
+    into = c("genero1", "genero2", "genero3")
+  ) %>% 
+  gather(posicao, genero, genero1:genero3) %>% 
+  ggplot(aes(x = gross, y = genero, fill = genero)) +
+  geom_density_ridges(show.legend = FALSE) +
+  xlim(c(NA, 2e+8))
+```
+
+
+## Plotly
+
+```{r}
+library(plotly)
+
+p <- dados_US %>%
+  mutate(
+    periodo = ifelse(title_year < 2000, "periodo_1", "periodo_2")
+  ) %>% 
+  ggplot(aes(text = movie_title)) +
+  geom_point(aes(x = budget, y = gross))
+
+ggplotly(p, tooltip = "text")
+```
+
+# ggplot2 extensions
+
+https://www.ggplot2-exts.org/
+
+```{r}
+library(ggridges)
+
+dados_US %>%
+  filter(title_year > 2005) %>% 
+  mutate(title_year = as.factor(title_year)) %>% 
+  ggplot(aes(y = title_year, x = gross, fill = title_year)) +
+  geom_density_ridges(na.rm = TRUE)
+```
+
+```{r}
+install.packages("devtools")
+devtools::install_github("ropensci/plotly")
+```
+

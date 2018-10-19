@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Introdução ao Machine Learning</title>
+    <meta charset="utf-8">
+    <meta name="author" content="@Curso-R" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="custom.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Introdução ao Machine Learning
+### <span class="citation">@Curso-R</span>
+### 22-10-2018
+
+---
+
+
+
+
+## Curso-R
+
+&lt;br&gt;
+
+&lt;img src="img/timeline.png" style=" display: block; margin-left: auto; margin-right: auto;"&gt;&lt;/img&gt;
+
+---
+
+## Professores
+
+&lt;img src="img/professores.png" style=" display: block; margin-left: auto; margin-right: auto; width: 110%"&gt;&lt;/img&gt;
+
+---
+
+# Programa do curso
+
+- 22/10 (seg) - **Introdução ao Machine Learning, Estratégias e ambientação ao R e RStudio**
+
+- 24/10 (qua) - **Estratégias gerais: separação da base de dados, reamostragem, tuning de modelos, métricas de performance**
+
+- 29/10 (seg) - **Regressão linear, regularização**
+
+- 31/10 (qua) - **Regressão logística, regressão vs classificação**
+
+- 05/11 (seg) - **Modelos de árvores**
+
+- 07/11 (qua) - **Bagging, Boosting e cases**
+
+- 08/11 (qui) - **Cases**
+
+---
+
+## Dinâmica das aulas
+
+* Aulas expositivas com exercícios ao decorrer e ao final das aulas.
+
+* Parada para café às 20h20.
+
+---
+
+# Ciência de dados
+
+&lt;img src="img/ciclo-ciencia-de-dados.png" style = "display: block; margin-left: auto; margin-right: auto;"&gt;
+
+---
+
+## Material
+
+* Temos um material em português disponível nesta página:
+
+&lt;center&gt;&lt;a href = 'http://material.curso-r.com/'&gt;http://material.curso-r.com/ &lt;/a&gt;&lt;/center&gt;
+
+&lt;img src="img/material.png" style=" display: block; margin-left: auto; margin-right: auto; width: 70%"&gt;&lt;/img&gt;
+
+---
+
+class: middle, center, inverse
+
+# Introdução
+
+---
+
+# O que é Machine Learning?
+
+&lt;br&gt;
+
+--
+
+- Não é um termo novo: criado por Arthur Samuel, em 1959
+
+&lt;img src="img/arthur-sam.png" class="center2" width=100&gt;
+
+--
+
+- Existe um grande hype atualmente em cima desse termo (~50 artigos por dia no Arxiv!!!)
+
+--
+
+&lt;img src="img/marvin.png" class="cantodireito" width=100&gt;
+
+--
+
+- Machine Learning é um nome marketeiro para modelagem preditiva
+
+--
+
+- Modelagem preditiva é um framework de análise de dados que visa gerar a estimativa mais precisa possível para uma quantidade ou fenômeno (Max Kuhn, 2014).
+
+
+---
+
+# Por que o hype?
+
+- Poderio computacional
+
+- Disponibilidade de dados
+
+- Sucesso em resolver problemas historicamente difíceis
+
+---
+
+## Exemplos
+
+&lt;img src="https://user-images.githubusercontent.com/4706822/45316589-db1b4580-b50d-11e8-8e53-33950d5c4c07.jpg" style="position: fixed; width: 40%; top: 250px; left: 300px;"&gt;
+
+--
+
+&lt;img src="http://pennachio.wpengine.com/wp-content/uploads/2017/02/diabetic-retinopathy_comparison-1024x469.jpg" style="position: fixed; width: 40%; top: 100px; left: 100px;"&gt;
+
+--
+
+&lt;img src="https://www.extremetech.com/wp-content/uploads/2014/09/self-driving-head-640x353.jpg" style="position: fixed;  width: 40%; top: 100px; left: 500px;"&gt;
+
+--
+
+&lt;img src="http://multimidia.correiodopovo.com.br/thumb.aspx?Caminho=multimidia/2017/10/07/434592.JPG&amp;Tamanho=690" style="position: fixed; width: 40%; top: 400px; left: 100px;"&gt;
+
+--
+
+&lt;img src="https://i2.wp.com/www.yaabot.com/wp-content/uploads/2016/11/yaabot_algo2.jpg?resize=759%2C500&amp;ssl=1" style="position: fixed; width: 40%; top: 200px; left: 500px;"&gt;
+
+--
+
+&lt;img src="https://5.imimg.com/data5/NT/NK/MY-38742550/life-insurance-health-insurance-and-general-insurance-250x250.png" style="position: fixed; width: 20%; top: 200px; left: 100px;"&gt;
+
+--
+
+&lt;img src="https://i.ytimg.com/vi/DmPLEURo-Vk/maxresdefault.jpg" style="position: fixed; width: 40%; top: 200px; left: 300px;"&gt;
+
+---
+
+class: middle, center, inverse
+
+# Relação com a Estatística
+
+---
+
+# Machine Learning e Estatística
+
+&lt;img src = "img/box.png" class = "center2"&gt;
+
+--
+
+1) Gostaríamos de saber como `\(x\)` e `\(y\)` estão relacionadas.
+
+--
+
+2) Gostaríamos de prever `\(y\)` a partir de `\(x\)`.
+
+--
+
+&lt;br&gt;
+
+Matematicamente, queremos encontrar uma função `\(f()\)` tal que:
+
+$$
+y \approx f(x)
+$$
+
+---
+
+# Machine Learning e Estatística
+
+ &lt;img src="img/box-data-models.png" class = "center2"&gt; 
+ 
+--
+
+&lt;br&gt;
+&lt;br&gt;
+ 
+&lt;img src="img/box-algorithmic-models.png" class = "center2"&gt; 
+
+---
+
+class: middle, center, inverse
+
+# Habilidades
+
+---
+
+# Pensamento crítico
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+- Entender o problema
+
+- Manter foco no objetivo
+
+- Definir a métrica
+
+&lt;img src="https://media.giphy.com/media/sqefuSs2oD8sg/giphy.gif" class="smart_cat"&gt;
+
+---
+
+# Entender o problema
+
+&lt;img src="img/aviao.png" class="center2"&gt;
+
+---
+
+# Entender o objetivo
+
+&lt;img src="img/ozonio.jpeg" class="ozonio"&gt;
+
+&lt;img src="img/carros.jpg" class="carros"&gt;
+
+---
+
+# Definir a métrica
+
+&lt;img src="img/google.png" class="google"&gt;
+
+---
+
+&lt;img src="https://wordstream-files-prod.s3.amazonaws.com/s3fs-public/styles/simple_image/public/images/machine-learning1.png?Q_SmWhhhAEOO_32HNjPhcxsPhreWV26o&amp;itok=yjEJbEKD" style=" display: block; margin-left: auto; margin-right: auto;"&gt;&lt;/img&gt;
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="js/macro.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script>
+(function() {
+  var i, text, code, codes = document.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+})();
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
