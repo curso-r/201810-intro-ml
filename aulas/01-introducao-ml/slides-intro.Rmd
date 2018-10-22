@@ -33,7 +33,7 @@ options(htmltools.dir.version = FALSE)
 
 # Programa do curso
 
-- 22/10 (seg) - **Introdução ao Machine Learning, Estratégias e ambientação ao R e RStudio**
+- 22/10 (seg) - **Introdução ao Machine Learning e ambientação ao R e RStudio**
 
 - 24/10 (qua) - **Estratégias gerais: separação da base de dados, reamostragem, tuning de modelos, métricas de performance**
 
@@ -53,7 +53,7 @@ options(htmltools.dir.version = FALSE)
 
 * Aulas expositivas com exercícios ao decorrer e ao final das aulas.
 
-* Parada para café às 20h20.
+* Parada para café às 20h30.
 
 ---
 

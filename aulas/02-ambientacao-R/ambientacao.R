@@ -72,7 +72,7 @@ minha_soma(1, 2)
 
 # Valores especiais -------------------------------------------------------
 
-#Existem valores reservados para representar dados faltantes, 
+# Existem valores reservados para representar dados faltantes, 
 # infinitos, e indefinições matemáticas.
 
 NA   # (Not Available) significa dado faltante/indisponível. 
