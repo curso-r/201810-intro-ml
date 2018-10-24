@@ -41,27 +41,36 @@ df %>%
   group_by(is_train) %>% 
   summarise(mse = mean((predicao - y)^2))
 
+ggplot(df, aes(x = x, y = y, color = is_train)) +
+  geom_point() +
+  geom_smooth(data = df_train, method = "lm", se = FALSE, formula = y ~ poly(x, 14, raw = TRUE))
 
 # Ajustando diversos modelos ----------------------------------------------
 
-grau <- c(1:20)
-erros <- NULL
-for(g in grau) {
+ajustar_polinomios <- function(df, grau) {
   
-  modelo <- lm(y ~ poly(x, g, raw = TRUE), data = df_train)
-  
-  df$predicao <- predict(modelo, df)
-  erros <- bind_rows(
-    erros,
-    df %>% 
-      group_by(is_train) %>% 
-      summarise(mse = mean((predicao - y)^2)) %>% 
-      mutate(grau = g)
-  )
+  erros <- NULL
+  for(g in grau) {
     
+    modelo <- lm(y ~ poly(x, g, raw = TRUE), data = df %>% filter(is_train))
+    
+    df$predicao <- predict(modelo, df)
+    erros <- bind_rows(
+      erros,
+      df %>% 
+        group_by(is_train) %>% 
+        summarise(mse = mean((predicao - y)^2)) %>% 
+        mutate(grau = g)
+    )
+    
+  }
+  erros
 }
 
-ggplot(erros, aes(x = grau, y = mse)) + geom_line() + facet_wrap(~is_train)
+erros <- ajustar_polinomios(df, 1:10)
+ggplot(erros, aes(x = grau, y = mse)) + 
+  geom_line() + 
+  facet_wrap(~is_train)
 
 
 # Qual o efeito do tamanho da amostra? -------------------------------------
