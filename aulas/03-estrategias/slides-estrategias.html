@@ -37,14 +37,17 @@ class: center, middle, inverse, title-slide
 # Intuição
 
 
-&lt;img src="slides-estrategias_files/figure-html/unnamed-chunk-1-1.png" style="display: block; margin: auto;" /&gt;
 
 
----
+Somos consultores e fomos contratados para dar conselhos para uma empresa aumentar as suas vendas.
 
-# Intuição (continuação)
+--
+
+Obtivemos o seguinte banco de dados
 
 &lt;img src="slides-estrategias_files/figure-html/unnamed-chunk-2-1.png" style="display: block; margin: auto;" /&gt;
+
+
 
 ---
 
@@ -63,6 +66,12 @@ class: center, middle, inverse, title-slide
 # Intuição (continuação)
 
 &lt;img src="slides-estrategias_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Intuição (continuação)
+
+&lt;img src="slides-estrategias_files/figure-html/unnamed-chunk-6-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -182,14 +191,6 @@ Trade-off: gostaríamos que nosso modelo tenha viés e variância mínimos, mas 
 
 Vamos encontrar um bom modelo para ajustar esse conjunto de 10 pontos.
 
-&lt;img src="slides-estrategias_files/figure-html/unnamed-chunk-6-1.png" style="display: block; margin: auto;" /&gt;
-
----
-
-# Exemplo
-
-**Regressão linear simples**: `\(y = b_0 + b_1x + e\)`
-
 &lt;img src="slides-estrategias_files/figure-html/unnamed-chunk-7-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
@@ -204,9 +205,17 @@ Vamos encontrar um bom modelo para ajustar esse conjunto de 10 pontos.
 
 # Exemplo
 
-**Modelo quadrático**: `\(y = b_0 + b_1x + b_2x^2 + e\)`
+**Regressão linear simples**: `\(y = b_0 + b_1x + e\)`
 
 &lt;img src="slides-estrategias_files/figure-html/unnamed-chunk-9-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Exemplo
+
+**Modelo quadrático**: `\(y = b_0 + b_1x + b_2x^2 + e\)`
+
+&lt;img src="slides-estrategias_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -266,14 +275,14 @@ Vamos encontrar um bom modelo para ajustar esse conjunto de 10 pontos.
 
 **Modelo polinomial de grau nove**: `\(y = b_0 + b_1x + b_2x^2 + \cdots + b_9x^9 + e\)`
 
-&lt;img src="slides-estrategias_files/figure-html/unnamed-chunk-11-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="slides-estrategias_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # Exemplo
 
 E se nós obtermos mais dados? As curvas representam os modelos ajustados com os 10 pontos iniciais.
 
-&lt;img src="slides-estrategias_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="slides-estrategias_files/figure-html/unnamed-chunk-13-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -340,7 +349,7 @@ E se nós obtermos mais dados? As curvas representam os modelos ajustados com os
 
 Agora ajustando nos dados novos.
 
-&lt;img src="slides-estrategias_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="slides-estrategias_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -438,13 +447,13 @@ E como fazemos para determinar os parâmetros de complexidade?
 
 # LOOCV
 
-&lt;img src="img/loocv.png" width="644" style="display: block; margin: auto;" /&gt;
+&lt;img src="img/loocv.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
 # k-fold
 
-&lt;img src="img/k-fold-cv.png" width="609" style="display: block; margin: auto;" /&gt;
+&lt;img src="img/k-fold-cv.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -492,7 +501,7 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
 (function () {
   var script = document.createElement('script');
   script.type = 'text/javascript';
-  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
   if (location.protocol !== 'file:' && /^https?:/.test(script.src))
     script.src  = script.src.replace(/^https?:/, '');
   document.getElementsByTagName('head')[0].appendChild(script);
