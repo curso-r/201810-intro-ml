@@ -39,7 +39,7 @@ knitr::opts_chunk$set(
 
 ---
 
-# Intuição
+# Definições
 
 
 ```{r echo=FALSE}
@@ -53,7 +53,7 @@ Somos consultores e fomos contratados para dar conselhos para uma empresa aument
 
 Obtivemos o seguinte banco de dados
 
-```{r}
+```{r, fig.width = 10, fig.height = 4}
 adv %>% 
   gather(midia, investimento, -sales) %>% 
   ggplot(aes(x = investimento, y = sales)) + 
@@ -61,72 +61,180 @@ adv %>%
   facet_wrap(~midia, scales = "free")
 ```
 
+* O propritário não consegue interferir diretamente nas vendas, mas consegue interferir no investimento em propaganda. 
+
+---
+
+# Definições
+
+* __X1__: budget para propagandas em jornal
+* __X2__: budget para propagandas em radio
+* __X3__: budget para propagandas em TV
+
+* __Y__: qtd vendida
+
+--
+
+* __X1, X2 e X3__ são as variáveis explicativas ou independentes ou *features* ou variáveis preditoras. Também chamamos de variáveis.
+
+* Y é a variável resposta ou variável dependente. 
+
+---
+
+# Intuição
+
+$$Y = f(X) + \epsilon$$
+
+* $X = (X_1, X_2, ..., X_n)$
+* $\epsilon$ é um termo de erro aleatório com média zero.
+
+--
+
+Uma outra forma de representar isso é escrever
+
+$$Y \approx f(X)$$
+
+--
+
+Machine Learning se refere a um conjunto de técnicas para estimar $f$. 
+
+--
+
+Vamos falar dos pricipais conceitos teóricos que surgem ao estimarmos $f$ e de formas para avaliar as estimativas obtidas.
+
+---
+
+# Por que estimar $f$?
+
+--
+* Predição
+--
+
+* Inferência
+
+--
+
+## Predição
+
+Em muitas situações X está disponível facilmente mas, Y não é fácil de descobrir. (Ou mesmo não é possível descobrí-lo).
+
+$$\hat{Y} = \hat{f}(X)$$
+é uma boa estimativa.
+Neste caso não estamos interessados em como é a estimativa $\hat{f}$ desde que ela apresente predições boas para $Y$.
+
+---
+
+## Predição
+
+A acurácia de uma estimativa $\hat{Y}$ pode ser dividade em duas quantidades:
+
+* erro redutível
+* erro irredutível
+
+![](https://user-images.githubusercontent.com/4706822/47453479-34c88e00-d7a3-11e8-9865-4e8b8bd001b3.png)
+
+* Essa parte irredutível, significa não redutível pela escolha do modelo/algoritmo. Ela pode ser reduzida se forem coletadas outras variáveis, mais dados, etc. Qualquer coisa que possa fazer a variância de $\epsilon$ diminuir.
+
+---
+
+## Inferência
+
+Em inferência estamos mais interessados em entender a relação entre as variáveis explciativas $X$ e a variável resposta $Y$.
+
+Alguns exemplos:
+
+* Quais são as variáveis que estão mais relacionadas com a respostas?
+* Qual a relação entre a resposta e cada um dos preditores?
+* A relação entre $y$ e $X$ pode ser resumida por um modelo linear ou a relação é mais complexa?
+
+--
+
+Neste curso, vamos principalmente sobre **predição**.
+
+---
+
+# Como estimamos $f$?
+
+Para estimar $f$, coletamos um conjunto de pares $(X, Y)$ e usamos algum algoritmo para encontrar uma $f$ tal que $Y \approx f(X)$.
+
+Os modelos estão basicamnte dividios em duas classes:
+
+* Paramétricos
+* Não paramétricos
+
+---
+
+## Paramétricos
+
+Assumem uma forma funcional para $f$ e depois estimam parâmetros. 
+
+--
+
+Podemos assumir que $f$ possui a forma funcional linear:
+
+$$f(X) = \beta_1*X_1 + \beta_2*X_2 + ... + \beta_p*X_p$$
+
+E depois ajustamos/treinamos essa forma funcional para encontrar $\beta_1, \beta_2, ..., \beta_p$ tal que:
+
+$$Y \approx \beta_1*X_1 + \beta_2*X_2 + ... + \beta_p*X_p$$
+---
+
+## Paramétricos
+
+Chamamos de paramétricos pois reduzimos o problema de estimar $f$ para o problema de estimar um conjunto de parâmetros $\beta$.
+
+Desvantagens:
+
+--
+
+* geralmente a forma funcional que escolhemos para $f$ não é a forma forma funcional da verdadeira $f$.
+* podemos aumentar o número de parâmetros, mas em geral isso leva ao overfitting.
+
+--
+
+Vantagens:
+
+--
+
+* em geral é computacionalmente mais eficiente
+* em geral precisa de menos observações
 
 
 ---
 
-# Intuição (continuação)
+## Não-paramétricos
 
-```{r echo=FALSE}
+Não fazem suposições explícitas sobre a forma funcional de $f$. Estimam uma $f$ que fica o mais próximo possível dos pontos de treino sem ser muito rigoroso e nem muito flexível.
 
-n <- 10000
-df <- data_frame(
-  x1 = rnorm(n),
-  x2 = rnorm(n),
-  prob = 1/(1 + exp(3*x2)),
-  y = rbinom(n, size = 1, prob = prob) == 1
-)
-
-ggplot(df, aes(x = x1, y= x2, color = y)) + geom_point(size = 0.1)
-```
+![](https://freakonometrics.hypotheses.org/files/2015/06/boosting-algo-3.gif)
 
 ---
 
-# Intuição (continuação)
+## Não paramétricos
 
-```{r}
-n <- 10000
-df <- data_frame(
-  x1 = rnorm(n),
-  x2 = rnorm(n),
-  prob = 1/(1 + exp(3*x1)),
-  y = rbinom(n, size = 1, prob = prob) == 1
-)
+**Vantagens**
 
-ggplot(df, aes(x = x1, y= x2, color = y)) + geom_point(size = 0.1)
-```
+* A principal vantagem sobre os modelos paramétricos é que por não fazerem suposiçõe sobre a forma de $f$ podem se ajustar bem á diversas formas possíveis de $f$. 
+
+**Desvantagens**
+
+* Em geral precisa de mais observações para ficar bom.
+* Pode ser mais custoso computacionalmente
 
 ---
 
-# Intuição (continuação)
+# Flexibilidade ou Intertabilidade?
 
-```{r}
-n <- 10000
-df <- data_frame(
-  x1 = rnorm(n),
-  x2 = rnorm(n),
-  prob = 1/(1 + exp(2*x1 + 5*x2)),
-  y = rbinom(n, size = 1, prob = prob) == 1
-)
-
-ggplot(df, aes(x = x1, y= x2, color = y)) + geom_point(size = 0.1)
-```
+![](https://user-images.githubusercontent.com/4706822/47456108-01d5c880-d7aa-11e8-899a-74804f74afc5.png)
 
 ---
 
-# Intuição (continuação)
+# Regressão e Classificação
 
-```{r}
-n <- 10000
-df <- data_frame(
-  x1 = rnorm(n),
-  x2 = rnorm(n),
-  prob = 1/(1 + exp(5*x1 + 5*x2)),
-  y = rbinom(n, size = 1, prob = prob) == 1
-)
+Existem dois principais tipos de problemas em Machine Learning:
 
-ggplot(df, aes(x = x1, y= x2, color = y)) + geom_point(size = 0.1)
-```
+* Regressão
+* Classificação
 
 ---
 
@@ -141,7 +249,7 @@ $$RMSE = \frac{1}{n}\sum_{i=1}^n \big(y_i - \hat{f}(x_i)\big)^2$$
 
 ---
 
-# Estimando a performance (cont)
+# Estimando a performance
 
 Para problemas de classificação:
 
@@ -153,9 +261,10 @@ Onde $p$ é a taxa de resposta.
 
 ---
 
-# Estimando a performance (cont)
+# Estimando a performance
 
 * Área sobre a curva ROC.
+* KS
 * Sensibilidade: Taxa de verdadeiros positivos.
 * Especificidade: Taxa de verdadeiros negativos. 
 
@@ -164,270 +273,45 @@ Onde $p$ é a taxa de resposta.
 
 ---
 
-# Exemplo: 
+# Estimando a performance
 
-<img src = "img/box.png" class = "center2">
+Essas medidas podem ser calculadas na base de dados que usamos para ajustar o modelo. 
+No entanto, não estamos muito interessados no valor delas dentro da base de *treino*. 
 
-- y: Cliente cancelou o cartão: Sim/Não
+> Estamos interessados nas métricas de erro/acerto para observações que não foram vistas durante o treino.
 
---
-
-
-- x: variáveis que podem interferir no cancelamento
-
---
-
-> Quantidade de compras no passado.
-
---
-
-> Valor total gasto no passado.
-
---
-
-> Tempo desde a sua primeira compra.
-
---
-
-> ...
+* **Exemplo**: Se fazemos um modelo para prever o valor de ações no mercado. Não estamos interessados no quanto acertamos para os últimos 6 meses. Estamos interessados em acertar o valor da ação amanhã, ou no próximo mês.
 
 ---
 
-# Fontes de erro
+# Estimando a performance
 
-$$y \approx \beta_0 + \beta_1 \text{qtd} + \beta_2 \text{valor} + \beta_3 \text{tempo} + \dots$$
+Considere que treinamos um modelo com o banco de dados:
 
---
+$${(x_1, y_1), (x_2, y_2), ... ,(x_x, y_n)}$$
 
-Fontes de erro:
+Portanto temos uma $\hat{f}$ tal que $y_1 \approx \hat{f}(x_1)$, $y_2 \approx \hat{f}(x_2)$, ...
+Portanto poderíamos calcular o MSE do treino, fazendo:
 
-- Relação funcional entre $x$ e $y$
+$$MSE = \sum_{i = 1}^{n} (y_i - \hat{f}(x_i))^2$$
+No entanto, não estamos interessados nessa medida. Em teoria estamos interessados em:
 
---
-
-- Ausência de variáveis importantes para explicar $y$
-
---
-
-- Erro de medida
-
---
-
-- etc
-
---
-
-<br>
-
-- **Viés**: erro induzido por aproximar um fenômeno real, que pode pode ser extremamente complicado, por um modelo muito mais simples.
-
-
-<!-- We would like our model to have minimum variance and minimum bias. But what we see in practice is that methods that reduce variance usually increases bias and vice-versa. -->
+$$MSE = Média((y_0 - \hat{f}(x_0))^2)$$
+Em que ($x_0$, $y_0$) é uma observação nova. (Não conhecida pelo modelo).
 
 ---
 
-# Generalização
+# Como estimamos o MSE para novas observações?
 
-Será que o modelo ajustado será útil para estimar se um novo cliente irá cancelar o cartão?
-
---
-
-- **Variância**: o quanto as estimativas dos parâmetros mudariam se nós os estimarmos usando uma base diferente. 
-
-<br>
-
---
-
-Trade-off: gostaríamos que nosso modelo tenha viés e variância mínimos, mas o que vemos na prática é que os métodos para redução da variância geralmente aumentam o viés e vice-versa.
+Podemos separar uma parte da base de dados que não será conhecida para o modelo no momento do ajuste.
 
 ---
 
-# Exemplo
-
-Vamos encontrar um bom modelo para ajustar esse conjunto de 10 pontos.
-
-```{r}
-set.seed(7)
-
-dados <- data_frame(
-  x = runif(10),
-  y = 2*x + 3*x^2 + rnorm(10, 0, 0.15) 
-)
-
-dados2 <- data_frame(
-  x = runif(100),
-  y = 2*x + 3*x^2 + rnorm(100, 0, 0.1) 
-)
-
-modelo <- lm(y ~ x, data = dados)
-modelo2 <- lm(y ~ poly(x, 2), data = dados)
-
-
-ggplot(dados, aes(x = x, y = y)) + 
-  geom_point() + 
-  theme_bw()
-```
-
----
-
-# Exemplo
-
-**Regressão linear simples**: $y = b_0 + b_1x + e$
-
-```{r}
-p <- ggplot(dados, aes(x = x, y = y)) + geom_point() + 
-  geom_smooth(formula = y ~ x, colour = "red", se = FALSE, method = 'lm') +
-  theme_bw()
-
-p
-```
-
----
-
-# Exemplo
-
-**Regressão linear simples**: $y = b_0 + b_1x + e$
-
-```{r}
-calcula_rmse <- function(modelo) {
-  mean(residuals(modelo)^2) %>%
-    sqrt() %>% 
-    round(3)
-}
-
-rmse <- calcula_rmse(modelo) %>%
-  str_c("RMSE: ", .)
-
-p + geom_text(aes(x = 0.25, y = 4, label = rmse))
-```
-
----
-
-# Exemplo
-
-**Modelo quadrático**: $y = b_0 + b_1x + b_2x^2 + e$
-
-```{r, fig.align='center'}
-rmse <- calcula_rmse(modelo2) %>%
-  str_c("RMSE: ", .)
-
-
-ggplot(dados, aes(x = x, y = y)) + geom_point() + 
-  geom_smooth(formula = y ~ x, colour = "red", se = FALSE, method = 'lm') +
-  geom_smooth(formula = y ~ poly(x, 2), colour = "orange", se = FALSE, method = 'lm') +
-  geom_text(aes(x = 0.25, y = 4, label = rmse)) +
-  theme_bw()
-```
-
----
-
-# Exemplo
-
-```{r}
-poly_lm <- function(dados, d) {
-  lm(y ~ poly(x, degree = d, raw = TRUE), data = dados)
-}
-
-modelos <- map(1:9, poly_lm, dados = dados)
-rmse <- 
-  map(modelos, calcula_rmse) %>% 
-  purrr::flatten_dbl()
-
-tibble(`Grau do polinômio` = 1:9, RMSE = rmse) %>% 
-  knitr::kable(format = "html", align = c("c", "c"))
-```
-
-
----
-
-# Exemplo
-
-**Modelo polinomial de grau nove**: $y = b_0 + b_1x + b_2x^2 + \cdots + b_9x^9 + e$
-
-```{r, fig.align='center'}
-ggplot(dados, aes(x = x, y = y)) + geom_point() + 
-  geom_smooth(formula = y ~ x, colour = "red", se = FALSE, method = 'lm') +
-  geom_smooth(formula = y ~ poly(x, 2), colour = "orange", se = FALSE, method = 'lm') +
-  geom_smooth(formula = y ~ poly(x, 9), colour = "blue", se = FALSE, method = 'lm') +
-  theme_bw()
-```
-
----
-# Exemplo
-
-E se nós obtermos mais dados? As curvas representam os modelos ajustados com os 10 pontos iniciais.
-
-```{r, fig.align='center'}
-ggplot(dados, aes(x = x, y = y)) + geom_point() + 
-  geom_smooth(formula = y ~ x, colour = "red", se = FALSE, method = 'lm') +
-  geom_smooth(formula = y ~ poly(x, 2), colour = "orange", se = FALSE, method = 'lm') +
-  geom_smooth(formula = y ~ poly(x, 9), colour = "blue", se = FALSE, method = 'lm') +
-  geom_point(data = dados2, aes(x = x, y = y)) +
-  theme_bw()
-```
-
----
-
-# Exemplo
-
-```{r}
-calcula_rmse_newdata <- function(modelo, newdata) {
-  mean((newdata$y - predict(modelo, newdata = newdata))^2) %>%
-    sqrt() %>% 
-    round(3)
-}
-
-rmse <- 
-  map(modelos, calcula_rmse_newdata, newdata = dados2) %>% 
-  purrr::flatten_dbl()
-
-tibble(`Grau do polinômio` = 1:9, RMSE = rmse) %>% 
-  knitr::kable(format = "html", align = c("c", "c"))
-```
-
----
-
-# Over-fitting
-
-- Over-fitting ocorre quando o modelo absorve de forma inadequada comportamentos da amostra que não são generalizáveis para novas observações.
-
-- No exemplo, uma escolha ruim do grau do polinômio está gerando over-fitting.
-
----
-
-# Exemplo
-
-Agora ajustando nos dados novos.
-
-```{r, fig.align='center'}
-ggplot(dados2, aes(x = x, y = y)) + geom_point() + 
-  geom_smooth(formula = y ~ x, colour = "red", se = FALSE, method = 'lm') +
-  geom_smooth(formula = y ~ poly(x, 2), colour = "orange", se = FALSE, method = 'lm') +
-  geom_smooth(formula = y ~ poly(x, 9), colour = "blue", se = FALSE, method = 'lm') +
-  theme_bw()
-```
-
----
-
-# Exemplo
-
-```{r}
-modelos <- map(1:9, poly_lm, dados = dados2)
-rmse <- 
-  map(modelos, calcula_rmse) %>% 
-  purrr::flatten_dbl()
-
-tibble(`Grau do polinômio` = 1:9, RMSE = rmse) %>% 
-  knitr::kable(format = "html", align = c("c", "c"))
-```
+# Exemplo no R
 
 ---
 
 # Estimando a performance do modelo
-
-Como estimar o viés e a variância do modelo?
-
---
 
 - **Erro de treino**: é o erro encontrado ao aplicar o modelo na própria base utilizada para treiná-lo.
 
