@@ -39,5 +39,8 @@ class: middle, center, inverse
 
 ## Referências
 
+
+- [https://xgboost.readthedocs.io/en/latest/tutorials/model.html]()
+
 ---
 
