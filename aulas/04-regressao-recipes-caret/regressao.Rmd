@@ -1,0 +1,246 @@
+---
+title: "Regressão, recipes e caret"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Sobre regressão
+
+- [Introduction to statistical learning](https://www-bcf.usc.edu/~gareth/ISL/), capítulo 3
+- [R4DS](r4ds.had.co.nz/), capítulo de modelagem
+
+# Pacotes
+
+```{r}
+library(dplyr)
+library(recipes)
+library(caret)
+```
+
+# Banco de dados
+
+```{r}
+data(diamonds, package = "ggplot2")
+glimpse(diamonds)
+
+diamonds <- diamonds %>%
+  mutate(
+    cut = as.character(cut),
+    color = as.character(color),
+    clarity = as.character(clarity)
+  )
+
+id_new <- sample.int(nrow(diamonds), size = 1000)
+new_diamonds <- diamonds[id_new,]
+diamonds <- diamonds[-id_new,]
+
+ggplot(diamonds, aes(x = log(price))) + 
+  geom_histogram(bins = 20)
+```
+
+# Ajustando modelos
+
+## Preparação
+
+```{r}
+summary_log <- function(data, lev = NULL, model = NULL) {
+  
+  metrics <- defaultSummary(data, lev, model)
+  
+  residuo <- exp(data$obs) - exp(data$pred)
+  metrics["RMSE"] <- sqrt(mean((residuo)^2))
+  metrics["MAE"] <- mean(abs(residuo))
+  
+  metrics
+}
+
+train_control <- trainControl(
+  method = "cv", 
+  number = 5, 
+  summaryFunction = summary_log
+)
+```
+
+
+## Regressão linear
+
+```{r}
+receita <- recipe(price ~ . , data = diamonds) %>%
+  step_dummy(all_nominal(), -all_outcomes()) %>%
+  step_nzv(all_predictors()) %>%
+  step_corr(all_predictors()) %>%
+  step_log(all_outcomes())
+
+receita
+
+modelo <- train(
+  receita, 
+  diamonds, 
+  method = "lm", 
+  trControl = train_control
+)
+
+modelo
+summary(modelo)
+varImp(modelo)
+```
+
+## Fazendo previsões
+
+```{r}
+new_diamonds$valores_preditos <- exp(predict(modelo, new_diamonds))
+head(new_diamonds$valores_preditos)
+```
+
+```{r}
+ggplot(new_diamonds, aes(x = valores_preditos, y = price)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, color = "blue")
+```
+
+## Seleção Automática de variáveis
+
+```{r}
+diamonds <- diamonds %>% rename(y_1 = y)
+
+receita <- recipe(price ~ ., data = diamonds) %>%
+  step_dummy(all_nominal(), -all_outcomes()) %>%
+  step_nzv(all_predictors())
+
+receita
+  
+receita_preparada <- prep(receita, diamonds)
+x <- bake(receita_preparada, diamonds)
+y <- x$price
+x <- x %>% select(-price)
+
+ctrl <- rfeControl(
+  functions = lmFuncs,
+  method = "cv",
+  number = 5,
+  verbose = TRUE
+)
+
+model <- rfe(
+  x = x, 
+  y = y, 
+  sizes = c(1, 2, 5), 
+  rfeControl = ctrl
+)
+
+summary(model$fit)
+model$variables
+```
+
+# Exercício
+
+Ajuste um modelo de regressão para o banco de dados 'AmesHousing':
+
+```{r}
+library(AmesHousing)
+ames <- make_ames()
+glimpse(ames)
+```
+
+```{r}
+# Faça um gráfico da variável resposta
+
+# ggplot(ames, aes(x = Sale_Price)) + 
+#   geom_histogram(fill = "white", color = "blue")
+
+
+# Deixe 300 observações de fora p/ testar o modelo final
+
+# id_validacao <- sample.int(nrow(ames), 300)
+# new_ames <- ames[id_validacao,]
+# ames <- ames[-id_validacao,]
+
+# ames
+
+# Crie uma receita
+
+# receita <- recipe(Sale_Price ~ ., data = ames) %>%
+#   step_other(all_nominal(), -all_outcomes(), threshold = 0.1) %>%
+#   step_dummy(all_nominal(), -all_outcomes()) %>%
+#   step_nzv(all_predictors()) %>%
+#   step_corr(all_predictors(), threshold = 0.9)
+# 
+# receita
+
+# Estabeleça a forma de fazer validação
+
+# train_control <- trainControl(
+#   method = "cv", 
+#   number = 5
+# )
+
+# Ajuste um modelo com todas as variáveis
+
+# modelo <- train(
+#   receita,
+#   ames,
+#   method = "lm", 
+#   trControl = train_control
+# )
+# 
+# modelo
+# varImp(modelo)
+
+# Faça seleção de variáveis
+
+# receita_preparada <- prep(receita, ames)
+# x <- bake(receita_preparada, ames)
+# y <- x$Sale_Price
+# x <- x %>% select(-Sale_Price)
+# 
+# ctrl <- rfeControl(
+#   functions = lmFuncs,
+#   method = "cv",
+#   number = 5,
+#   verbose = TRUE
+# )
+# 
+# model <- rfe(
+#   x = x, 
+#   y = y, 
+#   sizes = c(1, 2, 5, 50), 
+#   rfeControl = ctrl
+# )
+
+# Faça previsão para os 1000 que você deixou de fora
+
+# new_ames$predito <- predict(modelo, new_ames)
+# 
+# ggplot(new_ames, aes(x = predito, y = Sale_Price)) + 
+#   geom_point() +
+#   geom_abline(slope = 1, intercept = 0, color = "blue")
+# 
+# 
+# saveRDS(modelo, "~/Downloads/modelos.rds")
+# file.info("~/Downloads/modelos.rds")
+# 
+# modelo_lido <- readRDS("~/Downloads/modelos.rds")
+# x <- predict(modelo_lido, new_ames)
+
+```
+
+
+# Funções úteis
+
+```{r}
+# summary_log <- function(data, lev = NULL, model = NULL) {
+#   
+#   metrics <- defaultSummary(data, lev, model)
+#   
+#   residuo <- exp(data$obs) - exp(data$pred)
+#   metrics["RMSE"] <- sqrt(mean((residuo)^2))
+#   metrics["MAE"] <- mean(abs(residuo))
+#   
+#   metrics
+#}
+```
+
+

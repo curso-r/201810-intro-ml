@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Modelagem com recipes e caret</title>
+    <meta charset="utf-8">
+    <meta name="author" content="William Amorim" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Modelagem com recipes e caret
+### William Amorim
+
+---
+
+
+
+
+
+
+# Motivação
+
+O ajuste de modelos estatísticos envolve a construção da matriz de planejamento `\(X\)`.
+
+&lt;br&gt;
+
+$$
+Y = X\beta + \epsilon
+$$
+
+&lt;br&gt;
+
+--
+
+No R, em geral, não precisamos nos preocupar com essa etapa graças às fórmulas.
+
+
+
+```r
+lm(mpg ~ cyl + disp + wt + as.factor(gear), data = mtcars)
+```
+
+--
+
+&lt;br&gt;
+
+Como a função `lm()` interpreta essa fórmula?
+
+---
+
+# Motivação
+
+
+```r
+lm(mpg ~ cyl + disp + wt + as.factor(gear), data = mtcars)
+```
+
+- Definindo a variável `mpg` como reposta.
+
+- Definindo as variáveis `cyl`, `disp`, `wt`e `gear` como explicativas.
+
+- Criando variáveis dummies para a variável `gear`.
+
+- Criando a matriz `\(X\)`.
+
+--
+
+&lt;br&gt;
+
+No entanto, esse framework tem algumas limitações.
+
+---
+
+# Motivação
+
+- Fórmulas não acomodam muito bem muitas transformações ou operações sequenciais:
+
+
+```r
+lm(
+  log(mpg) ~ scale_fun(center_fun(impute_fun(disp))), 
+  data = mtcars
+)
+```
+
+--
+
+&lt;br&gt;
+
+- Diferentes funções podem utilizar as fórmulas de diferentes maneiras.
+
+
+```r
+nlme::lme(
+  Y ~ X1 + X2, 
+  random = ~ 1|X3,
+  data = oats
+)
+
+lme4::lmer(yield ~ X1 + X2 + (1 | X3), data = oats)
+```
+
+---
+
+# Motivação
+
+- Para um número muito grande de preditores, a criação das matrizes de planejamento podem tomar um tempo de computação considerável. [Ver este blog post](https://rviews.rstudio.com/2017/03/01/the-r-formula-method-the-bad-parts/).
+
+
+- Em geral, você não consegue usar a mesma matriz de planejamento para ajustar diferentes modelos.
+
+---
+
+# O pacote recipes
+
+- Framework para criação de matrizes modelo.
+
+- Abstrai algumas etapas de manipulação de dados, como criação de dummies, imputação e transformações.
+
+- Permite a reutilização de matrizes e a execução de cálculos parciais.
+
+&lt;br&gt;
+
+&lt;img src="https://raw.githubusercontent.com/tidymodels/recipes/master/recipes_hex_thumb.png" style="display: block; margin-left: auto; margin-right: auto "&gt;&lt;/img&gt;
+
+---
+
+# O pacote recipes
+
+As principais funções são:
+
+- `recipe()`: especifica o que você pretende fazer
+
+- `steps()`: indica as possíveis modificações na base
+
+- `prepare()`: faz os cálculos necessários para a aplicação das modificações
+
+- `bake()`: aplica as modificações a uma base da dados
+
+--
+
+Alguns dos steps disponíveis:
+
+- Transformações: log, raiz, polinômios, centralização, padronização...
+
+- Codificação: dummies, criação do level "other" para fatores...
+
+- Imputação: média, moda, K-nearest neighbors
+
+- Redução de dimensionalidade: PCA
+
+---
+
+# O pacote recipes
+
+Exemplo
+
+
+```r
+receita &lt;- recipe(price ~ . , data = diamonds) %&gt;%
+  step_dummy(cut, color, clarity) %&gt;%
+  step_interact(
+    terms = ~ x:y + x:z + y:z + carat*cut + depth*cut
+  ) %&gt;% 
+  step_log(all_outcomes())
+
+prep &lt;- prep(receita, data = diamonds)
+
+matriz_X &lt;- bake(prep, data = diamonds)
+```
+
+
+
+---
+
+# Pacote caret
+
+- Abreviação de _Classification And Regression Training_.
+
+- Padroniza a especificação de modelos preditivos no R.
+
+- Também padroniza a forma de avaliar os resultados e fazer predições.
+
+- Aceita receitas do pacote `recipes`.
+
+&lt;br&gt;
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/A_Ariel_view_of_Carot.jpg" style="display: block; margin-left: auto; margin-right: auto; width: 40%"&gt;&lt;/img&gt;
+
+---
+
+# O pacote caret
+
+Inclui funções para:
+
+- separação dos dados
+- &lt;s&gt;pré-processamento&lt;/s&gt; (utilizaremos o `recipes`)
+- seleção de variáveis
+- tuning e validação cruzada
+- estimação de importância de variáveis
+
+Todas criadas de forma padronizada.
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script>
+(function() {
+  var i, text, code, codes = document.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+})();
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

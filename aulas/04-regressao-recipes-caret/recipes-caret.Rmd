@@ -1,0 +1,197 @@
+---
+title: "Modelagem com recipes e caret"
+author: "William Amorim"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+# Motivação
+
+O ajuste de modelos estatísticos envolve a construção da matriz de planejamento $X$.
+
+<br>
+
+$$
+Y = X\beta + \epsilon
+$$
+
+<br>
+
+--
+
+No R, em geral, não precisamos nos preocupar com essa etapa graças às fórmulas.
+
+
+```{r, eval = FALSE}
+lm(mpg ~ cyl + disp + wt + as.factor(gear), data = mtcars)
+```
+
+--
+
+<br>
+
+Como a função `lm()` interpreta essa fórmula?
+
+---
+
+# Motivação
+
+```{r, eval = FALSE}
+lm(mpg ~ cyl + disp + wt + as.factor(gear), data = mtcars)
+```
+
+- Definindo a variável `mpg` como reposta.
+
+- Definindo as variáveis `cyl`, `disp`, `wt`e `gear` como explicativas.
+
+- Criando variáveis dummies para a variável `gear`.
+
+- Criando a matriz $X$.
+
+--
+
+<br>
+
+No entanto, esse framework tem algumas limitações.
+
+---
+
+# Motivação
+
+- Fórmulas não acomodam muito bem muitas transformações ou operações sequenciais:
+
+```{r, eval = FALSE}
+lm(
+  log(mpg) ~ scale_fun(center_fun(impute_fun(disp))), 
+  data = mtcars
+)
+```
+
+--
+
+<br>
+
+- Diferentes funções podem utilizar as fórmulas de diferentes maneiras.
+
+```{r, eval = FALSE}
+nlme::lme(
+  Y ~ X1 + X2, 
+  random = ~ 1|X3,
+  data = oats
+)
+
+lme4::lmer(yield ~ X1 + X2 + (1 | X3), data = oats)
+```
+
+---
+
+# Motivação
+
+- Para um número muito grande de preditores, a criação das matrizes de planejamento podem tomar um tempo de computação considerável. [Ver este blog post](https://rviews.rstudio.com/2017/03/01/the-r-formula-method-the-bad-parts/).
+
+
+- Em geral, você não consegue usar a mesma matriz de planejamento para ajustar diferentes modelos.
+
+---
+
+# O pacote recipes
+
+- Framework para criação de matrizes modelo.
+
+- Abstrai algumas etapas de manipulação de dados, como criação de dummies, imputação e transformações.
+
+- Permite a reutilização de matrizes e a execução de cálculos parciais.
+
+<br>
+
+<img src="https://raw.githubusercontent.com/tidymodels/recipes/master/recipes_hex_thumb.png" style="display: block; margin-left: auto; margin-right: auto "></img>
+
+---
+
+# O pacote recipes
+
+As principais funções são:
+
+- `recipe()`: especifica o que você pretende fazer
+
+- `steps()`: indica as possíveis modificações na base
+
+- `prepare()`: faz os cálculos necessários para a aplicação das modificações
+
+- `bake()`: aplica as modificações a uma base da dados
+
+--
+
+Alguns dos steps disponíveis:
+
+- Transformações: log, raiz, polinômios, centralização, padronização...
+
+- Codificação: dummies, criação do level "other" para fatores...
+
+- Imputação: média, moda, K-nearest neighbors
+
+- Redução de dimensionalidade: PCA
+
+---
+
+# O pacote recipes
+
+Exemplo
+
+```{r, eval = FALSE}
+receita <- recipe(price ~ . , data = diamonds) %>%
+  step_dummy(cut, color, clarity) %>%
+  step_interact(
+    terms = ~ x:y + x:z + y:z + carat*cut + depth*cut
+  ) %>% 
+  step_log(all_outcomes())
+
+prep <- prep(receita, data = diamonds)
+
+matriz_X <- bake(prep, data = diamonds)
+```
+
+
+
+---
+
+# Pacote caret
+
+- Abreviação de _Classification And Regression Training_.
+
+- Padroniza a especificação de modelos preditivos no R.
+
+- Também padroniza a forma de avaliar os resultados e fazer predições.
+
+- Aceita receitas do pacote `recipes`.
+
+<br>
+
+<img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/A_Ariel_view_of_Carot.jpg" style="display: block; margin-left: auto; margin-right: auto; width: 40%"></img>
+
+---
+
+# O pacote caret
+
+Inclui funções para:
+
+- separação dos dados
+- <s>pré-processamento</s> (utilizaremos o `recipes`)
+- seleção de variáveis
+- tuning e validação cruzada
+- estimação de importância de variáveis
+
+Todas criadas de forma padronizada.
