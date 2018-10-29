@@ -1,0 +1,241 @@
+---
+title: "Regressão, recipes e caret"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(recipes)
+library(caret)
+```
+
+## Regressão linear
+
+```{r}
+# install.packages("modelr")
+
+dados <- modelr::sim1
+dados
+
+ggplot(dados, aes(x, y)) +
+  geom_point() +
+  theme_bw()
+```
+
+A relação entre x e y vai ser descrita por uma função f(x) tal que
+
+$$
+y \approx f(x)
+$$
+
+Queremos encontrar uma f(x) que, para cada novo x, nos dê uma estimativa precisa de y.
+
+$$
+f(x) = a + bx
+$$
+
+
+```{r}
+ggplot(dados, aes(x, y)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw()
+```
+
+As estimativas de a e b serão os valores que minimizam a expressão
+
+$$
+\sum_{i=i}^{n} (y - (a + bx))^2
+$$
+No R, podemos fazer isso facilmente usando a função `lm()`.
+
+```{r}
+ajuste <- lm(y ~ x, dados)
+summary(ajuste)
+```
+
+E se quiséssemos fazer previsões:
+
+```{r}
+novas_obs <- data.frame(x = c(1, 2, 4, 10))
+predict(ajuste, novas_obs)
+```
+
+## Pacote recipes
+
+```{r}
+mtcars
+lm(mpg ~ as.factor(cyl) + disp + log(hp) + as.factor(vs), data = mtcars)
+```
+
+A função `lm()`, antes de iniciar o processo de estimação, precisa criar a *matrix modelo*. Isso envolve os seguintes passos:
+
+- definir qual a variável resposta;
+- definir quais as variáveis explicativas;
+- aplicar transformações passadas na fórmula;
+- criar dummies para variáveis categóricas.
+
+
+
+O pacote `recipes` abstrai a criação de matrizes modelo a patir de um framework simplificado, visível e padronizado para especificação de modelos.
+
+```{r}
+knitr::include_graphics("https://raw.githubusercontent.com/tidymodels/recipes/master/recipes_hex_thumb.png")
+```
+
+
+O pacote tem quatro principais funções:
+
+- `recipe()`: especifica o que você pretende fazer.
+
+- `step_()`: indica as possíveis transformações na base.
+
+- `prepare()`: faz os cálculos necessários para a aplicação das modificações.
+
+- `bake()`: aplica as modificações a uma base da dados.
+
+## Exemplo
+
+Queremos prever o valor de um diamante a partir das características de cada pedra.
+
+```{r}
+data(diamonds, package = "ggplot2")
+glimpse(diamonds)
+
+diamonds <- diamonds %>%
+  mutate(
+    cut = as.character(cut),
+    color = as.character(color),
+    clarity = as.character(clarity)
+  )
+```
+
+Vamos usar o pacote `recipes` para especificar nosso modelo.
+
+```{r}
+receita <- recipe(price ~ . , data = diamonds) %>%
+  step_dummy(all_nominal()) %>%
+  step_nzv(all_predictors()) %>%
+  step_corr(all_predictors())
+
+prep <- prep(receita, diamonds)
+
+dados_mod <- bake(prep, diamonds)
+
+ajuste <- lm(price ~ ., dados_mod)
+summary(ajuste)
+```
+
+As funções de ajustar modelos no R não são muito padronizadas e não possuem interface para utilização de receitas.
+
+## Caret
+
+- Abreviação de *Classification And Regression Training*.
+
+- Padroniza a especificação do ajuste de modelos preditivos no R.
+
+- Abstrai a aplicação de diversos tipos de validação cruzada.
+
+- Também padroniza a forma de avaliar os resultados e fazer predições.
+
+- Permite processamento em paralelo.
+
+- Aceita receitas do pacote `recipes`.
+
+```{r}
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/b/b5/A_Ariel_view_of_Carot.jpg")
+```
+
+Vamos voltar ao exemplo dos diamantes.
+
+```{r}
+id_novos <- sample(nrow(diamonds), size = 1000)
+novos_diamantes <- diamonds[id_novos,]
+diamantes <- diamonds[-id_novos,]
+```
+
+
+Para ajustar um modelo, sempre utilizamos a função `train()`.
+
+```{r}
+modelo <- train(
+  receita, 
+  diamantes, 
+  method = "lm", 
+  trControl = trainControl(method = "cv", number = 5)
+)
+
+modelo
+summary(modelo$finalModel)
+varImp(modelo)
+```
+
+Fazendo previsões:
+
+```{r}
+novos_diamantes <- bake(prep, novos_diamantes)
+
+novos_diamantes %>% 
+  mutate(pred = predict(modelo, novos_diamantes)) %>% 
+  ggplot(aes(y = pred, x = price)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, color = "blue") +
+  theme_bw()
+```
+
+
+## Exercícios
+
+
+## Continuando o exemplo
+
+```{r}
+receita <- recipe(price ~ . , data = diamantes) %>%
+  step_dummy(all_nominal(), -all_outcomes()) %>%
+  step_nzv(all_predictors()) %>%
+  step_corr(all_predictors()) %>%
+  step_log(all_outcomes())
+
+modelo <- train(
+  receita, 
+  diamantes, 
+  method = "lm", 
+  trControl = trainControl(method = "cv", number = 5)
+)
+
+modelo
+```
+
+Precisamos deixar as métricas na mesma unidade para poder compará-las.
+
+```{r}
+summary_log <- function(data, lev = NULL, model = NULL) {
+  
+  metrics <- defaultSummary(data, lev, model)
+  
+  residuo <- exp(data$obs) - exp(data$pred)
+  metrics["RMSE"] <- sqrt(mean((residuo)^2))
+  metrics["MAE"] <- mean(abs(residuo))
+  
+  metrics
+}
+
+train_control <- trainControl(
+  method = "cv", 
+  number = 5, 
+  summaryFunction = summary_log
+)
+
+modelo <- train(
+  receita, 
+  diamantes, 
+  method = "lm", 
+  trControl = train_control
+)
+
+modelo
+```
+
+
+
