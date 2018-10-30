@@ -1,0 +1,64 @@
+---
+title: "Exercícios - AmesHousing"
+output: html_document
+---
+
+# Exercício (AmesHousing)
+
+Ajuste um modelo de regressão para o banco de dados 'AmesHousing':
+
+```{r}
+library(AmesHousing)
+library(dplyr)
+library(recipes)
+library(caret)
+
+ames <- make_ames()
+glimpse(ames)
+
+id_novos <- sample(nrow(ames), size = 300)
+ames_teste <- ames[id_novos,]
+ames_treino <- ames[-id_novos,]
+```
+
+```{r}
+ggplot(ames_treino, aes(x = Sale_Price)) +
+  geom_histogram() +
+  theme_bw()
+
+receita <- recipe(Sale_Price ~ ., data = ames_treino) %>% 
+  step_dummy(all_nominal()) %>% 
+  step_nzv(all_predictors()) %>% 
+  step_corr(all_predictors()) %>%
+  step_log(Sale_Price)
+
+prep <- prep(receita, ames_treino)
+```
+
+
+```{r}
+modelo <- train(
+  receita,
+  ames_treino,
+  method = "lm",
+  trControl = trainControl(method = "cv", number = 5)
+)
+
+modelo
+```
+
+```{r}
+ames_teste_mod <- bake(prep, ames_teste)
+
+ames_teste_mod %>% 
+  mutate(pred = predict(modelo, ames_teste_mod)) %>% 
+  ggplot(aes(x = Sale_Price, y = pred)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0) +
+  theme_bw()
+```
+
+```{r}
+varImp(modelo)
+```
+
