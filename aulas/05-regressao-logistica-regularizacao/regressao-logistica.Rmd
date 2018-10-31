@@ -104,6 +104,11 @@ library(skimr)
 ```{r}
 data("credit_data")
 glimpse(credit_data)
+
+credit_data <- mutate(
+  credit_data, 
+  Status = forcats::lvls_reorder(Status, c(2, 1))
+)
 ```
 
 ```{r}
@@ -136,8 +141,26 @@ modelo <- train(
   family = "binomial", 
   trControl = trainControl(method = "cv", number = 5)
 )
+
 modelo
+varImp(modelo)
 ```
+
+# Outras métricas
+
+```{r}
+credit_data %>% 
+  mutate(pred = predict(modelo, credit_data)) %>% 
+  select(Status, pred) %>% 
+  table
+```
+
+
+- sensibilidade: taxa de *true positives", entre os bons clientes, quantos foram previstos como bons clientes.
+
+- especificidade: taxa de *true negatives", entre os maus clientes, quantos foram previstos como maus clientes.
+
+- curva ROC
 
 ```{r}
 metricas <- function(data, lev = NULL, model = NULL) {
@@ -151,9 +174,12 @@ train_control <- trainControl(
   method = "cv", 
   number = 5, 
   classProbs = TRUE,
-  summaryFunction = metricas
+  summaryFunction = metricas,
+  savePredictions = TRUE
 )
 ```
+
+Ajustando novamente o modelo
 
 ```{r}
 modelo <- train(
@@ -166,8 +192,16 @@ modelo <- train(
 
 modelo
 summary(modelo)
-cor(credit_data %>% select_if(is.numeric), use = "complete.obs")
 ```
+
+Plotando a curva ROC
+
+```{r}
+library(pROC)
+
+plot.roc(modelo$pred$obs, modelo$pre$good, legacy.axes = TRUE)
+```
+
 
 # Regularização
 
