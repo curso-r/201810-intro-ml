@@ -1,0 +1,75 @@
+---
+title: "Regularização"
+output: html_document
+---
+
+# Regularização
+
+- Penalizar os coeficientes no processo de estimação
+- Encolher os coeficientes na direção do zero 
+- Diminui a variância do modelo em troca de um pouco de viés
+
+Regressão ridge
+
+$$
+L(y, f(x)) - \lambda\sum_{i=1}^pb_i^2
+$$
+
+LASSO
+
+$$
+L(y, f(x)) - \lambda\sum_{i=1}^p|b_i|
+$$
+
+Podemos reescrever de outra forma:
+
+$$
+\underset{\beta}{\text{minimizar}}L(y, f(x)) \text{ sujeito à } \sum_{j=1}^p \beta_j^2 \leq s \text{ ou } \sum_{j=1}^p |\beta_j| \leq s
+$$
+
+```{r}
+knitr::include_graphics("lasso_ridge.png")
+```
+
+
+```{r}
+receita <- recipe(Status ~ ., data = credit_data) %>%
+  step_meanimpute(all_numeric(), -all_outcomes()) %>%
+  step_modeimpute(all_nominal(), -all_outcomes()) %>%
+  step_dummy(all_nominal(), -all_outcomes()) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors())
+
+modelo <- train(
+  receita, 
+  credit_data, 
+  method = "glmnet", 
+  family = "binomial", 
+  trControl = train_control, 
+  metric = "ROC"
+)
+
+modelo
+modelo$bestTune
+coef(modelo$finalModel, s = modelo$bestTune$lambda)
+```
+
+```{r}
+tune_grid <- expand.grid(alpha = c(0, 0.55, 1), lambda = 10^(-6:0))
+
+modelo <- train(
+  receita, 
+  credit_data, 
+  method = "glmnet", 
+  family = "binomial", 
+  trControl = train_control, 
+  metric = "ROC", 
+  tuneGrid = tune_grid
+)
+
+modelo
+modelo$bestTune
+coef(modelo$finalModel, s = modelo$bestTune$lambda)
+plot(modelo)
+varImp(modelo)
+```

@@ -1,0 +1,23 @@
+---
+title: "Exercício"
+output: html_document
+---
+
+# Exercício
+
+Ajuste um modelo de regressão logística e um de LASSO p/ prever o churn de funcionários no banco de dados `attrition`.
+
+```{r}
+library(tidyverse)
+library(recipes)
+library(caret)
+library(rsample)
+
+
+data(attrition, package = "rsample")
+glimpse(attrition)
+```
+
+```{r}
+
+```

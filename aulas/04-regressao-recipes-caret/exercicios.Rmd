@@ -1,0 +1,27 @@
+---
+title: "Exercícios - regressão"
+output: html_document
+---
+
+## Exercícios (diamonds)
+
+1. Faça um histograma da variável "price" e proponha uma transformação na variável resposta para melhorar o ajuste.
+
+2. Utilize as funções do recipes e caret para ajustar um modelo de regressão linear com a nova variável transformada e verifique se o erro e as previsões melhoram.
+
+```{r}
+
+```
+
+
+# Exercício (AmesHousing)
+
+Ajuste um modelo de regressão para o banco de dados 'AmesHousing':
+
+```{r}
+install.packages("AmesHousing")
+library(AmesHousing)
+ames <- make_ames()
+glimpse(ames)
+```
+
