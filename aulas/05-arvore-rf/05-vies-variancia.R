@@ -11,9 +11,9 @@ dados %>% ggplot(aes(x, y)) + geom_point()
 # amostras bootstrap
 bootstraps <- tibble(id = 1:100) %>%
   mutate(
-    amostra = replicate(n(), sample(nrow(dados), 50, replace = TRUE), simplify = FALSE),
+    amostra = replicate(n(), sample(nrow(dados), 5000, replace = TRUE), simplify = FALSE),
     modelo_linear = map(amostra, ~ lm(y ~ x, data = dados[.x, ])),
-    # modelo_I_x_20_poly_2 = map(amostra, ~ lm(y ~ I(x < 20 ) * poly(x, 2), data = dados[.x, ])),
+    modelo_correto = map(amostra, ~ lm(y ~ x + sin(pi * x), data = dados[.x, ])),
     modelo_arvore_profundidade_1 = map(amostra, ~ rpart(y ~ x, data = dados[.x, ], control = rpart.control(2, 1, maxdepth = 1, cp = 0.05))),
     modelo_arvore_profundidade_3 = map(amostra, ~ rpart(y ~ x, data = dados[.x, ], control = rpart.control(2, 1, maxdepth = 3, cp = 0.05))),
     modelo_arvore_profundidade_9 = map(amostra, ~ rpart(y ~ x, data = dados[.x, ], control = rpart.control(2, 1, maxdepth = 9, cp = 0.05))),
@@ -32,6 +32,7 @@ predicoes <- bootstraps %>%
 predicoes %>%
   select(id, modelo, pred) %>%
   unnest %>%
+  filter(modelo %in% "modelo_correto") %>%
   ggplot() +
   geom_line(aes(x = x, y = pred, group = paste(id, modelo), colour = modelo)) +
   geom_point(data = dados, aes(x = x, y = y)) +

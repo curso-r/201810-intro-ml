@@ -5,6 +5,13 @@ library(rpart)
 library(rpart.plot)
 library(recipes)
 
+gini <- function(x, y) {
+  tabela <- table(x, y)
+  tabela
+}
+
+gini(pacientes$glicose > 111, pacientes$diabetes)
+
 pacientes <- tribble(
   ~paciente, ~pressao, ~glicose, ~diabetes,
   "Alfredo", "hipertensao",  92, "nao",
@@ -27,25 +34,13 @@ primeira_decisao <- pacientes %>%
   group_by(pergunta) %>%
   nest %>%
   mutate(
-    contagem_de_sims = map(data, ~ {
+    tabela = map(data, ~ {
       .x %>% 
-        group_by(flag_pergunta) %>% 
+        group_by(flag_pergunta, diabetes) %>% 
         summarise(
-          sim = sum(diabetes %in% "sim"),
           n = length(diabetes)
-        ) %>% 
-        gather(sumario, valor, sim, n) %>%
-        mutate(flag_pergunta = if_else(flag_pergunta, "esquerda", "direita")) %>%
-        unite(flag_pergunta, flag_pergunta, sumario) %>%
-        spread(flag_pergunta, valor)
+        )
     })
-  ) %>%
-  unnest(contagem_de_sims)
-
-primeira_decisao %>%
-  mutate(
-    esquerda_gini = ,
-    direita_gini
   )
 
 
@@ -74,7 +69,7 @@ train_control <- trainControl(
 )
 
 modelo <- train(
-    diabetes ~ sexo + glicose,
+    diabetes ~ pressao + glicose,
     data = pacientes,
     method = "rpart",
     control = rpart.control(minsplit = 2, minbucket = 1),
@@ -83,3 +78,11 @@ modelo <- train(
   )
 
 modelo$finalModel %>% rpart.plot
+
+
+
+
+a <- 1 - (0.5)^2 - (0.5)^2
+b <- 1 - (0)^2 - (1)^2
+c <- 1 - (0.2)^2 - (0.8)^2
+
