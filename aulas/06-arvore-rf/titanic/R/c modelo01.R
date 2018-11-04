@@ -3,7 +3,7 @@ load("titanic.RData")
 
 
 
-train_control_model01 <- trainControl(
+train_control <- trainControl(
    method = "cv"
   ,number = 5
   ,verboseIter = TRUE
