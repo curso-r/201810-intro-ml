@@ -5,6 +5,7 @@ library(e1071)
 library(rpart)
 library(rpart.plot)
 library(recipes)
+library(magrittr)
 
 gini <- function(.data, .resposta, .pergunta) {
   .resposta <- enquo(.resposta)
