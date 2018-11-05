@@ -1,14 +1,14 @@
-load("titanic.RData")
+
+load("aulas/06-arvore-rf/titanic/RData/titanic.RData")
 
 
 
-
-train_control <- trainControl(
+train_control_model01 <- trainControl(
    method = "cv"
   ,number = 5
   ,verboseIter = TRUE
   ,classProbs = TRUE
-  ,summaryFunction = myTwoClassSummary
+  ,summaryFunction = metricas
   ,allowParallel = FALSE
 )
 
@@ -39,10 +39,9 @@ model01 <- train(
   
   , method = "glmnet"
   , preProcess = NULL
-  # , metric = c("ROC", "F1")
+  , metric = "ROC"
   , trControl = train_control_model01
   , tuneGrid = tune_grid_model01
-  # , preProc=c("center", "scale")
 )
 
-save(model01, file = "model01.RData")
+save(model01, file = "aulas/06-arvore-rf/titanic/RData/model01.RData")

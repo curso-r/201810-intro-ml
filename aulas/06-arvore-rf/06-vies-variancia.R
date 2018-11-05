@@ -9,14 +9,14 @@ dados <- tibble(x = runif(100, -2, 2)) %>%#runif(200) - 0.5) %>%
 dados %>% ggplot(aes(x, y)) + geom_point()
 
 # amostras bootstrap
-bootstraps <- tibble(id = 1:100) %>%
+bootstraps <- tibble(id = 1:1) %>%
   mutate(
     amostra = replicate(n(), sample(nrow(dados), 5000, replace = TRUE), simplify = FALSE),
     modelo_linear = map(amostra, ~ lm(y ~ x, data = dados[.x, ])),
     modelo_correto = map(amostra, ~ lm(y ~ x + sin(pi * x), data = dados[.x, ])),
     modelo_arvore_profundidade_1 = map(amostra, ~ rpart(y ~ x, data = dados[.x, ], control = rpart.control(2, 1, maxdepth = 1, cp = 0.05))),
     modelo_arvore_profundidade_3 = map(amostra, ~ rpart(y ~ x, data = dados[.x, ], control = rpart.control(2, 1, maxdepth = 3, cp = 0.05))),
-    modelo_arvore_profundidade_9 = map(amostra, ~ rpart(y ~ x, data = dados[.x, ], control = rpart.control(2, 1, maxdepth = 9, cp = 0.05))),
+    modelo_arvore_profundidade_9 = map(amostra, ~ rpart(y ~ x, data = dados[.x, ], control = rpart.control(2, 1, maxdepth = 9, cp = 0.02))),
   ) %>%
   gather(modelo, modelo_objeto, -id, -amostra)
 
@@ -32,10 +32,9 @@ predicoes <- bootstraps %>%
 predicoes %>%
   select(id, modelo, pred) %>%
   unnest %>%
-  filter(modelo %in% "modelo_correto") %>%
+  filter(modelo %in% c("modelo_arvore_profundidade_9", "modelo_linear")) %>%
   ggplot() +
-  geom_line(aes(x = x, y = pred, group = paste(id, modelo), colour = modelo)) +
+  geom_line(aes(x = x, y = pred, group = paste(id, modelo), colour = modelo), size = 2) +
   geom_point(data = dados, aes(x = x, y = y)) +
-  facet_wrap(~modelo) +
   theme_grey(20)
 

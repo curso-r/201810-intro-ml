@@ -1,5 +1,5 @@
-titanic_train <- read_csv("train.csv")
-titanic_test <- read_csv("test.csv")
+titanic_train <- read_csv("aulas/06-arvore-rf/titanic/csv/train.csv")
+titanic_test <- read_csv("aulas/06-arvore-rf/titanic/csv/test.csv")
 
 
 titanic <- bind_rows(
@@ -42,7 +42,7 @@ titanic %<>%
                                          TRUE ~ 0),
          age_v2 = Age %>% scale %>% as.vector)
 
-save(titanic, file = "titanic.RData")
+save(titanic, file = "aulas/06-arvore-rf/titanic/RData/titanic.RData")
 
 
 
