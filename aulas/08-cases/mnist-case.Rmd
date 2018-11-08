@@ -1,0 +1,72 @@
+---
+title: "mnist-case"
+author: "Curso-R"
+date: "11/8/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Você possui um banco de dados de imagens de 2 dígitos (1 e 7) e o objetivo deste 
+desafio é criar um modelo para classificar cada imagem em uma das duas classes.
+
+```{r}
+library(caret)
+library(tidyverse)
+library(recipes)
+
+tr <- read_rds("data/mnist_train.rds")
+ts <- read_rds("data/mnist_test.rds")
+```
+
+Você pode visualizar as imagens usando a seguinte função:
+
+```{r}
+plot_img <- function(x, i) {
+  plot(as.raster(matrix(unlist(x[i,1:784]), nrow = 28), max = 255))
+}
+plot_img(tr, 10)
+plot_img(tr, 1)
+plot_img(tr, 100)
+```
+
+# Crie a sua receita! 
+
+Crie uma receita para fazer os tratamentos necessários na base de dados. Não se esqueça que alguns pixels
+são pretos em todas as imagens e isso pode atrapalhar na hora da modelagem.
+
+```{r}
+# Crie a sua receita aqui
+```
+
+# Ajuste um modelo
+
+Decida a melhor métrica para medir o acerto! Faça o tuning dos hiperparâmteros usando
+essa métrica. 
+
+Qual modelo dá o melhor resultado? LASSO? Gradient Boosting ou Random Forest?
+
+```{r}
+# Ajuste os seus modelos aqui
+```
+
+# Valide o modelo
+
+Use a base de teste para validar o seu modelo. Observe a acurácia do seu melhor modelo
+nesta base.
+
+```{r}
+# Ajuste aqui
+```
+
+# Analise algumas imagens que o modelo errou
+
+Use a função `plot_img` para visualizar algumas imagens para os quais o modelo
+errou a classificação.
+
+```{r}
+
+```
+
