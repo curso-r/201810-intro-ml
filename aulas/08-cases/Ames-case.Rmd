@@ -1,0 +1,27 @@
+---
+title: "Case (AmesHousing)"
+output: html_document
+---
+
+# Case (AmesHousing)
+
+Neste case, vamos utilizar o banco de preços de casas visto na aula de regressão.
+
+```{r}
+install.packages("AmesHousing")
+library(AmesHousing)
+ames <- make_ames()
+glimpse(ames)
+```
+
+1. Crie novas variáveis simplificando e combinando os preditores já existentes.
+
+2. Faça gráficos para analisar a relação entre o preço de venda e os principais preditores para investigar a presença de outliers.
+
+3. Avalie a distribuição do preço de venda. Quando e por que é recomendável usar a transformação log?
+
+4. Ajuste um modelo de regressão linear.
+
+5. Ajuste um modelo de regressão linear com regularização.
+
+6. Tente melhorar a previsão utilizando um modelo de árvores.
