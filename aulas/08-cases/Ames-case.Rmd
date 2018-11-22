@@ -8,20 +8,130 @@ output: html_document
 Neste case, vamos utilizar o banco de preços de casas visto na aula de regressão.
 
 ```{r}
-install.packages("AmesHousing")
+#install.packages("AmesHousing")
+
 library(AmesHousing)
+library(tidyverse)
+library(caret)
+library(recipes)
+
 ames <- make_ames()
 glimpse(ames)
 ```
 
 1. Crie novas variáveis simplificando e combinando os preditores já existentes.
 
+Podemos criar novas variáveis juntando variáveis de avaliação da casa. Também transformamos categorias pouco presentes em "Outras".
+
+
 2. Faça gráficos para analisar a relação entre o preço de venda e os principais preditores para investigar a presença de outliers.
+
+Tamanho do terreno vs preço de venda
+(repare a presença de outliers)
+
+```{r}
+ggplot(ames, aes(y = Sale_Price, x = Lot_Area)) +
+  geom_point()
+```
+
+Condições e qualidade gerais vs preço de venda
+(repare a presença de outliers)
+
+```{r}
+ggplot(ames, aes(y = Sale_Price, x = Overall_Qual)) +
+  geom_boxplot()
+
+ggplot(ames, aes(y = Sale_Price, x = Overall_Cond)) +
+  geom_boxplot()
+```
+
+Longitude vs preço de venda
+
+```{r}
+ggplot(ames, aes(y = Sale_Price, x = Longitude)) +
+  geom_point()
+```
+
+
+Latitude vs preço de venda
+
+```{r}
+ggplot(ames, aes(y = Sale_Price, x = Latitude)) +
+  geom_point()
+```
 
 3. Avalie a distribuição do preço de venda. Quando e por que é recomendável usar a transformação log?
 
+Como a distribuição da variável é assimétrica à direita, valores muito altos (atípicos) terão um peso muito grande no erro quadrático médio. Tiramos o log para "aproximar" os valores.
+
+```{r}
+ggplot(ames, aes(x = Sale_Price)) +
+  geom_histogram(color = "grey", fill = "white")
+```
+
+
 4. Ajuste um modelo de regressão linear.
+
+```{r}
+receita_lm <- recipe(ames, formula = Sale_Price ~ .) %>% 
+  step_other(all_nominal()) %>% 
+  step_dummy(all_nominal()) %>% 
+  step_nzv(all_predictors()) %>% 
+  step_corr(all_predictors()) %>%
+  step_log(Sale_Price)
+
+modelo <- train(
+  receita_lm,
+  ames,
+  method = "lm",
+  trControl = trainControl(method = "cv", number = 5)
+)
+
+modelo
+```
+
 
 5. Ajuste um modelo de regressão linear com regularização.
 
+```{r}
+receita_lasso <- recipe(ames, formula = Sale_Price ~ .) %>%
+  step_other(all_nominal()) %>% 
+  step_dummy(all_nominal()) %>% 
+  step_nzv(all_predictors()) %>% 
+  step_corr(all_predictors()) %>%
+  step_log(Sale_Price) %>% 
+  step_center(all_predictors()) %>% 
+  step_scale(all_predictors()) 
+
+modelo <- train(
+  receita_lasso,
+  ames,
+  method = "glmnet",
+  trControl = trainControl(method = "cv", number = 5)
+)
+
+modelo
+```
+
+
 6. Tente melhorar a previsão utilizando um modelo de árvores.
+
+
+```{r}
+receita_rf <- recipe(ames, formula = Sale_Price ~ .) %>%
+  step_other(all_nominal()) %>% 
+  step_dummy(all_nominal(), one_hot = TRUE) %>% 
+  step_nzv(all_predictors()) %>% 
+  step_corr(all_predictors()) %>%
+  step_log(Sale_Price)
+
+modelo <- train(
+  receita_rf,
+  ames,
+  method = "ranger",
+  trControl = trainControl(method = "cv", number = 5)
+)
+
+modelo
+```
+
